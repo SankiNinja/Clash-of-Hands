@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 827dff857d4609540b21055d0a11f67c, type: 3}
+  m_Name: Game_RPS
+  m_EditorClassIdentifier: 
+  GameCards:
+  - {fileID: 11400000, guid: 04e2e6e9f4ab6df4e9c709a76ed6ceb2, type: 2}
+  - {fileID: 11400000, guid: afdfd632ded77304f80557571ef71122, type: 2}
+  - {fileID: 11400000, guid: 8ca536fdf75997f4a83d6c6af47f63d6, type: 2}
+  gameRules:
+  - Card: {fileID: 11400000, guid: 04e2e6e9f4ab6df4e9c709a76ed6ceb2, type: 2}
+    Defeats:
+    - {fileID: 11400000, guid: afdfd632ded77304f80557571ef71122, type: 2}
+  - Card: {fileID: 11400000, guid: afdfd632ded77304f80557571ef71122, type: 2}
+    Defeats:
+    - {fileID: 11400000, guid: 8ca536fdf75997f4a83d6c6af47f63d6, type: 2}
+  - Card: {fileID: 11400000, guid: 8ca536fdf75997f4a83d6c6af47f63d6, type: 2}
+    Defeats:
+    - {fileID: 11400000, guid: afdfd632ded77304f80557571ef71122, type: 2}
