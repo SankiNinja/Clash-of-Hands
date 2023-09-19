@@ -126,10 +126,10 @@ TextureImporter:
       name: Rock
       rect:
         serializedVersion: 2
-        x: 891
-        y: 1679
-        width: 211
-        height: 182
+        x: 903
+        y: 1663
+        width: 183
+        height: 337
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -137,7 +137,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 8cc17787302f58643a3b3b9719df4d10
+      spriteID: 2499e1d91c24cc145b75710a94e8e380
       internalID: 718864909
       vertices: []
       indices: 
@@ -150,7 +150,7 @@ TextureImporter:
         x: 172
         y: 1076
         width: 228
-        height: 266
+        height: 340
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -158,7 +158,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 07dcb4a4f1c33924abbed171c63c9816
+      spriteID: 2db367d608b68404cbad4a2fb5814103
       internalID: -838196759
       vertices: []
       indices: 
@@ -171,7 +171,7 @@ TextureImporter:
         x: 1591
         y: 1076
         width: 209
-        height: 339
+        height: 340
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -179,7 +179,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b95d94ca6cb29854fab91bc147efd3f3
+      spriteID: b1d9e2eb3c772b44c9a33ae7de2446b4
       internalID: 264556694
       vertices: []
       indices: 
@@ -200,7 +200,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 4cc44fa6fa99e21438977d9070003122
+      spriteID: 5e83af767d4270b418dec9151e39dc48
       internalID: -251516949
       vertices: []
       indices: 
@@ -210,10 +210,10 @@ TextureImporter:
       name: Scissors
       rect:
         serializedVersion: 2
-        x: 1279
-        y: 274
-        width: 321
-        height: 165
+        x: 1366
+        y: 262
+        width: 167
+        height: 340
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -221,7 +221,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f00e6f85972e1b94d91fe312a0d454c8
+      spriteID: c65ad9fa4a5eb9c41955158acf667b25
       internalID: -217364951
       vertices: []
       indices: 

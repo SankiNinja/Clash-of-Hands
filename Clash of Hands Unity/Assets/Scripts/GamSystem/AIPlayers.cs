@@ -17,7 +17,10 @@ namespace ClashOfHands.Systems
 
         private AICardInput[] _aiPlayers;
 
-        public void Initialize(GameData gameData, ICardInputPoller inputPoller, int aiInstances,int avatarCount)
+        public AICardInput this[int index] => _aiPlayers[index];
+        public int Length => _aiPlayers.Length;
+
+        public void Initialize(GameData gameData, ICardInputPoller inputPoller, int aiInstances, int avatarCount)
         {
             _gameData = gameData;
 

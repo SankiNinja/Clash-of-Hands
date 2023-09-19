@@ -22,11 +22,11 @@ namespace ClashOfHands.Systems
 
         private int _localPlayerIndex = 0;
 
-        public void SetUpGameFromGameData(GameData gameData, float turnTime)
+        public void SetUpGameFromGameData(GameData gameData, float turnTime, ITurnUpdateProvider turnUpdate)
         {
             _visual.SetActive(true);
             _cardDeck.SetUpDeck(gameData.GameCards, turnTime);
-            _cardTable.Initialize(gameData.Players);
+            _cardTable.Initialize(gameData.Players, gameData.GameCards, turnUpdate);
         }
 
         public void RegisterPlayerInput(ICardInputPoller inputPoller, int localPlayerIndex)

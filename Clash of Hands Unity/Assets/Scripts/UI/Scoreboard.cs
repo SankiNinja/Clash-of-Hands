@@ -20,9 +20,11 @@ namespace ClashOfHands.UI
 
             _playerScorecardUI.UpdateCardUI("0", playerSprite);
 
+            _scorecardPool.InitializePool();
             foreach (var avatarSprite in avatarSprites)
             {
                 var card = _scorecardPool.Get();
+                card.gameObject.SetActive(true);
                 card.UpdateCardUI("0", avatarSprite);
                 _activeScorecards.Add(card);
             }

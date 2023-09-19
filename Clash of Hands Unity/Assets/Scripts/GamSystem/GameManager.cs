@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using ClashOfHands.Data;
 using NaughtyAttributes;
 using UnityEngine;
@@ -10,7 +11,18 @@ namespace ClashOfHands.Systems
         public void PollCardInput();
     }
 
-    public class GameManager : MonoBehaviourSingleton<GameManager>, ICardInputPoller
+    public interface ITurnUpdateHandler
+    {
+        public void OnTurnBegin();
+    }
+
+    public interface ITurnUpdateProvider
+    {
+        public void RegisterForTurnUpdates(ITurnUpdateHandler handler);
+        public void UnRegisterForTurnUpdates(ITurnUpdateHandler handler);
+    }
+
+    public class GameManager : MonoBehaviourSingleton<GameManager>, ICardInputPoller, ITurnUpdateProvider
     {
         [SerializeField]
         private GameData _gameData;
@@ -37,7 +49,9 @@ namespace ClashOfHands.Systems
 
         private int _playerIndices = 0;
 
-        public Sprite[] AvatarSprites => _avatarDatabase.Avatars;
+        private Sprite[] AvatarSprites => _avatarDatabase.Avatars;
+
+        private List<ITurnUpdateHandler> _turnBeginHandlers = new(8);
 
         private void Start()
         {
@@ -54,10 +68,11 @@ namespace ClashOfHands.Systems
                 MainMenuManager.Instance.ShowState(MainMenuManager.States.AvatarSelection);
             else
             {
-                _player.SetAvatar(_player.PlayerIndex, AvatarSprites[_player.PlayerIndex]);
+                _player.SetAvatar(_player.AvatarId, AvatarSprites[_player.AvatarId]);
                 MainMenuManager.Instance.ShowState(MainMenuManager.States.MainMenu);
-                GameHUD.Instance.Hide();
             }
+
+            GameHUD.Instance.Hide();
         }
 
         public void ResetGame()
@@ -82,7 +97,7 @@ namespace ClashOfHands.Systems
         public void SetUpGame()
         {
             RegisterInputSources();
-            InitializeGame();
+            InitializeGameUI();
         }
 
         private void RegisterInputSources()
@@ -93,12 +108,22 @@ namespace ClashOfHands.Systems
 
             //Set AI
             _aiPlayers.Initialize(_gameData, this, _gameData.Players - 1, AvatarSprites.Length);
+
+            for (int i = 0; i < _aiPlayers.Length; i++)
+                _otherAvatarSprites[i] = AvatarSprites[_aiPlayers[i].AvatarIndex];
         }
 
-        private void InitializeGame()
+        private void InitializeGameUI()
         {
-            GameHUD.Instance.SetUpGameFromGameData(_gameData, _turnTime);
+            GameHUD.Instance.SetUpGameFromGameData(_gameData, _turnTime, this);
             GameHUD.Instance.SetScoreHUD(_player.AvatarSprite, _otherAvatarSprites);
+        }
+
+        [Button]
+        public void StartTurn()
+        {
+            foreach (var turnBeginHandle in _turnBeginHandlers)
+                turnBeginHandle?.OnTurnBegin();
         }
 
         public void PollCardInput()
@@ -124,6 +149,27 @@ namespace ClashOfHands.Systems
         {
             _player.SetAvatar(avatarId, sprite);
             _player.SaveData();
+        }
+
+        public void RegisterForTurnUpdates(ITurnUpdateHandler handler)
+        {
+            _turnBeginHandlers.Add(handler);
+        }
+
+        public void UnRegisterForTurnUpdates(ITurnUpdateHandler handler)
+        {
+            var count = _turnBeginHandlers.Count;
+            for (int i = 0; i < count; i++)
+            {
+                if (ReferenceEquals(_turnBeginHandlers[i], handler))
+                {
+                    var lastHandler = _turnBeginHandlers[count - 1];
+                    _turnBeginHandlers[i] = lastHandler;
+                    _turnBeginHandlers.RemoveAt(count - 1);
+                    count--;
+                    i--;
+                }
+            }
         }
     }
 }
