@@ -28,6 +28,7 @@ namespace ClashOfHands.Data
 
         public void OnCardClicked(CardData cardData, CardUI uiView)
         {
+            //Propagate these to the game manager. 
         }
 
         private void Clear()

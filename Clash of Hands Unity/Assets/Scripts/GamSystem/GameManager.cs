@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace ClashOfHands.Systems
 {
-    public class GameManager : MonoBehaviour
+    public class GameManager : MonoBehaviourSingleton<GameManager>
     {
         [SerializeField]
         private GameData _gameData;

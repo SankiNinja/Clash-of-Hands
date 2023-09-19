@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 827dff857d4609540b21055d0a11f67c, type: 3}
   m_Name: Game_RPSLS
   m_EditorClassIdentifier: 
+  <Players>k__BackingField: 2
   GameCards:
   - {fileID: 11400000, guid: 4bf1d0e1679673242835db1f9cd90f56, type: 2}
   - {fileID: 11400000, guid: 04e2e6e9f4ab6df4e9c709a76ed6ceb2, type: 2}

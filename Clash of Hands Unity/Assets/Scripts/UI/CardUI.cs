@@ -1,11 +1,12 @@
 using ClashOfHands.Data;
+using ClashOfHands.Systems;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
 namespace ClashOfHands.UI
 {
-    public class CardUI : MonoBehaviour
+    public class CardUI : MonoBehaviour , IPoolObject<CardUI>
     {
         [SerializeField]
         private Image _image;
@@ -37,7 +38,7 @@ namespace ClashOfHands.UI
             _cardClickHandler.OnCardClicked(_currentCardData, this);
         }
 
-        public CardPool OwnerPool { private get; set; }
+        public SerializedComponentPool<CardUI> OwnerPool { private get; set; }
 
         public void Free()
         {

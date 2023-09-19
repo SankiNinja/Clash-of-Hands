@@ -30,12 +30,21 @@ namespace ClashOfHands.Data
     [Serializable]
     public class GameData : ScriptableObject
     {
+        [field: SerializeField]
+        [field: Range(2, 10)]
+        public int Players { get; private set; } = 2;
+
         [Header("Cards")]
         public CardData[] GameCards;
 
         [FormerlySerializedAs("gameRules")]
         [Header("Game Rules")]
         public GameRule[] GameRules;
+
+        public void UpdatePlayerCount(int playerCount)
+        {
+            Players = playerCount;
+        }
 
         public void Evaluate(in CardData[] cards, int[] results)
         {
@@ -120,7 +129,6 @@ namespace ClashOfHands.Data
                     results[i] = 0;
             }
         }
-
 
 #if UNITY_EDITOR
         [Button]
