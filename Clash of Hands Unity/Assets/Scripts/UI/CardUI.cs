@@ -26,10 +26,15 @@ namespace ClashOfHands.UI
             UpdateCardUI(cardData.DisplayName, cardData.Sprite);
         }
 
-        private void UpdateCardUI(string cardName, Sprite sprite)
+        public void UpdateCardUI(string text, Sprite sprite)
         {
-            _nameLabel.SetText(cardName);
+            _nameLabel.SetText(text);
             _image.sprite = sprite;
+        }
+
+        public void UpdateCardLabel(string text)
+        {
+            _nameLabel.SetText(text);
         }
 
         //Bound to Button Component on the Game Object.
@@ -38,12 +43,7 @@ namespace ClashOfHands.UI
             _cardClickHandler.OnCardClicked(_currentCardData, this);
         }
 
-        public SerializedComponentPool<CardUI> OwnerPool { private get; set; }
-
-        public void Free()
-        {
-            OwnerPool.Release(this);
-        }
+        public SerializedComponentPool<CardUI> OwnerPool { get; set; }
 
         public void Clear()
         {

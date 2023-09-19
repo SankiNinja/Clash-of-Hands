@@ -1,19 +1,33 @@
 using System.Collections.Generic;
+using ClashOfHands.Systems;
 using ClashOfHands.UI;
 using UnityEngine;
 
 namespace ClashOfHands.Data
 {
-    public class CardDeck : MonoBehaviour, ICardClickHandler
+    public class CardDeck : MonoBehaviour, ICardClickHandler, ICardInputProvider, ITurnTimerExpiredHandler
     {
         [SerializeField]
         private CardPool _cardPool;
 
-        private List<CardUI> _cardUIs = new();
+        [SerializeField]
+        private TurnTimerUI _timerUI;
 
-        public void SetUpDeck(CardData[] cards)
+        private readonly List<CardUI> _cardUIs = new(8);
+
+        private CardData _selectedCard;
+
+        private ICardInputPoller _cardInputPoller;
+
+        private float _turnTime;
+
+        public void SetUpDeck(CardData[] cards, float turnTime)
         {
             Clear();
+
+            _turnTime = turnTime;
+
+            _cardPool.InitializePool();
 
             foreach (var cardData in cards)
             {
@@ -26,17 +40,40 @@ namespace ClashOfHands.Data
             }
         }
 
-        public void OnCardClicked(CardData cardData, CardUI uiView)
-        {
-            //Propagate these to the game manager. 
-        }
-
         private void Clear()
         {
             foreach (var card in _cardUIs)
-                card.Free();
+                ((IPoolObject<CardUI>)card).Free();
 
             _cardUIs.Clear();
+        }
+
+        public void StartRound()
+        {
+            _timerUI.StartTimer(_turnTime, this);
+        }
+
+        public void OnCardClicked(CardData cardData, CardUI uiView)
+        {
+            _selectedCard = cardData;
+        }
+
+        public void OnTimerExpired(float duration)
+        {
+            _cardInputPoller.PollCardInput();
+        }
+
+        public int PlayerIndex { get; set; }
+
+        public void RegisterToInputPoller(ICardInputPoller inputPoller)
+        {
+            _cardInputPoller = inputPoller;
+            PlayerIndex = inputPoller.RegisterCardInputReceiver(this);
+        }
+
+        public CardData GetCardInput()
+        {
+            return _selectedCard;
         }
     }
 

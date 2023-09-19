@@ -41,11 +41,6 @@ namespace ClashOfHands.Data
         [Header("Game Rules")]
         public GameRule[] GameRules;
 
-        public void UpdatePlayerCount(int playerCount)
-        {
-            Players = playerCount;
-        }
-
         public void Evaluate(in CardData[] cards, int[] results)
         {
             Assert.IsNotNull(cards, "Cards data is null.");

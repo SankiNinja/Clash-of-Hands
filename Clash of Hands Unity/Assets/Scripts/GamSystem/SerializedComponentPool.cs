@@ -5,9 +5,13 @@ namespace ClashOfHands.Systems
 {
     public interface IPoolObject<TComponent> where TComponent : MonoBehaviour, IPoolObject<TComponent>
     {
-        SerializedComponentPool<TComponent> OwnerPool { set; }
+        SerializedComponentPool<TComponent> OwnerPool { get; set; }
         void Clear();
-        void Free();
+
+        void Free()
+        {
+            OwnerPool.Release(this as TComponent);
+        }
     }
 
     public class SerializedComponentPool<TComponent> : MonoBehaviour where TComponent : MonoBehaviour, IPoolObject<TComponent>
@@ -18,7 +22,7 @@ namespace ClashOfHands.Systems
         [SerializeField]
         private TComponent _componentPrefab;
 
-        private void Start()
+        public void InitializePool()
         {
             foreach (var component in _pool)
             {
