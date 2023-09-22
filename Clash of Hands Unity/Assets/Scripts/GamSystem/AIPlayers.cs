@@ -7,7 +7,7 @@ namespace ClashOfHands.Systems
     {
         int PlayerIndex { get; set; }
 
-        public void RegisterToInputPoller(ICardInputPoller inputPoller);
+        public void RegisterToInputPoller(ICardInputReceiver inputReceiver);
         CardData GetCardInput();
     }
 
@@ -20,7 +20,7 @@ namespace ClashOfHands.Systems
         public AICardInput this[int index] => _aiPlayers[index];
         public int Length => _aiPlayers.Length;
 
-        public void Initialize(GameData gameData, ICardInputPoller inputPoller, int aiInstances, int avatarCount)
+        public void Initialize(GameData gameData, ICardInputReceiver inputReceiver, int aiInstances)
         {
             _gameData = gameData;
 
@@ -28,11 +28,10 @@ namespace ClashOfHands.Systems
             _aiPlayers = new AICardInput[aiInstances];
             for (var i = 0; i < aiInstances; i++)
             {
-                var avatarIndex = Random.Range(0, avatarCount);
-                var aiCardInput = new AICardInput(_gameData, avatarIndex);
+                var aiCardInput = new AICardInput(_gameData);
                 _aiPlayers[i] = aiCardInput;
 
-                aiCardInput.RegisterToInputPoller(inputPoller);
+                aiCardInput.RegisterToInputPoller(inputReceiver);
             }
         }
     }
@@ -42,17 +41,14 @@ namespace ClashOfHands.Systems
         private GameData _gameData;
         public int PlayerIndex { get; set; }
 
-        public int AvatarIndex { get; private set; }
-
-        public AICardInput(GameData gameData, int avatarIndex)
+        public AICardInput(GameData gameData)
         {
             _gameData = gameData;
-            AvatarIndex = avatarIndex;
         }
 
-        public void RegisterToInputPoller(ICardInputPoller inputPoller)
+        public void RegisterToInputPoller(ICardInputReceiver inputReceiver)
         {
-            PlayerIndex = inputPoller.RegisterCardInputReceiver(this);
+            PlayerIndex = inputReceiver.RegisterCardInputReceiver(this);
         }
 
         public CardData GetCardInput()

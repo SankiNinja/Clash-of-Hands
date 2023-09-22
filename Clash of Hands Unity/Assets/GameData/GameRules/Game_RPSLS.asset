@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <Players>k__BackingField: 2
   GameCards:
-  - {fileID: 11400000, guid: 4bf1d0e1679673242835db1f9cd90f56, type: 2}
-  - {fileID: 11400000, guid: 04e2e6e9f4ab6df4e9c709a76ed6ceb2, type: 2}
   - {fileID: 11400000, guid: afdfd632ded77304f80557571ef71122, type: 2}
+  - {fileID: 11400000, guid: 04e2e6e9f4ab6df4e9c709a76ed6ceb2, type: 2}
   - {fileID: 11400000, guid: 8ca536fdf75997f4a83d6c6af47f63d6, type: 2}
+  - {fileID: 11400000, guid: 4bf1d0e1679673242835db1f9cd90f56, type: 2}
   - {fileID: 11400000, guid: 2d019ffb76c406045b502c486173201c, type: 2}
   GameRules:
   - Card: {fileID: 11400000, guid: 4bf1d0e1679673242835db1f9cd90f56, type: 2}

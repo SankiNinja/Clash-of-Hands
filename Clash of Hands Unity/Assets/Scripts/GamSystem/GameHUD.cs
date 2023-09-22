@@ -1,7 +1,7 @@
 using ClashOfHands.Data;
 using ClashOfHands.UI;
+using DG.Tweening;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace ClashOfHands.Systems
 {
@@ -16,47 +16,48 @@ namespace ClashOfHands.Systems
         [SerializeField]
         private Scoreboard _scoreboard;
 
-        [FormerlySerializedAs("table")]
         [SerializeField]
         private CardShowTable _cardTable;
 
-        private int _localPlayerIndex = 0;
+        [SerializeField]
+        private StartCountdown _countdown;
 
-        public void SetUpGameFromGameData(GameData gameData, float turnTime, ITurnUpdateProvider turnUpdate)
+        public void SetUpGameFromGameData(GameData gameData, ITurnUpdateProvider turnUpdateProvider)
         {
             _visual.SetActive(true);
-            _cardDeck.SetUpDeck(gameData.GameCards, turnTime);
-            _cardTable.Initialize(gameData.Players, gameData.GameCards, turnUpdate);
+            _cardDeck.SetUpDeck(gameData.GameCards, turnUpdateProvider);
+            _cardTable.Initialize(gameData.Players, gameData.GameCards, turnUpdateProvider);
+            _countdown.Initialize(gameData.GameCards);
         }
 
-        public void RegisterPlayerInput(ICardInputPoller inputPoller, int localPlayerIndex)
+        public void RegisterPlayerInput(ICardInputReceiver inputReceiver, int localPlayerIndex)
         {
-            _cardDeck.RegisterToInputPoller(inputPoller);
-            _localPlayerIndex = localPlayerIndex;
+            _cardDeck.RegisterToInputPoller(inputReceiver);
         }
 
-        public void SetScoreHUD(Sprite playerSprite, Sprite[] sprites)
+        public void SetScoreHUD(Sprite[] sprites, int playerIndex, GameMode gameMode)
         {
-            _scoreboard.Initialize(sprites, playerSprite);
+            _scoreboard.Initialize(sprites, playerIndex, gameMode);
         }
 
         public void UpdateScores(int[] scores)
         {
-            for (int i = 0; i < scores.Length; i++)
-            {
-                if (i != _localPlayerIndex)
-                {
-                    _scoreboard.UpdateScoreboard(i, scores[i]);
-                    continue;
-                }
-
-                _scoreboard.UpdateLocalPlayerScore(scores[i]);
-            }
+            _scoreboard.UpdateScoreboard(scores);
         }
 
         public void Hide()
         {
             _visual.gameObject.SetActive(false);
+        }
+
+        public void ShowCards(CardData[] cards)
+        {
+            _cardTable.ShowCards(cards);
+        }
+
+        public void ShowCountdown(TweenCallback startTurn)
+        {
+            _countdown.Animate(startTurn);
         }
     }
 }

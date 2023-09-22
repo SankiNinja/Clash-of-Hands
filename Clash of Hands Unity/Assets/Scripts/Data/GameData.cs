@@ -54,7 +54,11 @@ namespace ClashOfHands.Data
             for (int i = 0; i < inputLen; i++)
             {
                 var currentCard = cards[i];
-                Assert.IsNotNull(currentCard, "Null card found during evaluation.");
+                if (currentCard == null)
+                {
+                    results[i] = -1;
+                    continue;
+                }
 
                 var score = 0;
 
@@ -75,8 +79,10 @@ namespace ClashOfHands.Data
                         continue;
 
                     var otherCard = cards[j];
-                    Assert.IsNotNull(otherCard, "Null card found during evaluation.");
-                    score += rule.Evaluate(otherCard);
+                    if (otherCard != null)
+                        score += rule.Evaluate(otherCard);
+                    else
+                        score += 1;
                 }
 
                 results[i] = score;

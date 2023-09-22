@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace ClashOfHands.Systems
 {
@@ -12,22 +13,26 @@ namespace ClashOfHands.Systems
     {
         private IEnumerator _routine;
 
+        private float _targetTime = -1;
+        private float _currentTime = 0;
+        private ITimerTickHandler _tickHandler;
+
         public void StartTimer(float sec, ITimerTickHandler tickHandler)
         {
             gameObject.SetActive(true);
-            StartCoroutine(Tick(sec, tickHandler));
+            _targetTime = sec;
+            _currentTime = 0;
+            _tickHandler = tickHandler;
+            Assert.IsNotNull(_tickHandler);
         }
 
-        IEnumerator Tick(float sec, ITimerTickHandler tickHandler)
+        private void Update()
         {
-            var currentTime = 0f;
-            var targetTime = Time.time + sec;
-            while (currentTime < targetTime)
-            {
-                currentTime += Time.deltaTime;
-                tickHandler.OnTimerTicked(currentTime, targetTime);
-                yield return null;
-            }
+            if (_targetTime < _currentTime)
+                return;
+
+            _currentTime += Time.deltaTime;
+            _tickHandler.OnTimerTicked(_currentTime, _targetTime);
         }
     }
 }

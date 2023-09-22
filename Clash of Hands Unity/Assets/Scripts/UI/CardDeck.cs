@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace ClashOfHands.Data
 {
-    public class CardDeck : MonoBehaviour, ICardClickHandler, ICardInputProvider, ITurnTimerExpiredHandler
+    public class CardDeck : MonoBehaviour, ICardClickHandler, ICardInputProvider
     {
         [SerializeField]
         private CardPool _cardPool;
@@ -17,18 +17,10 @@ namespace ClashOfHands.Data
 
         private CardData _selectedCard;
 
-        private ICardInputPoller _cardInputPoller;
-
-        private float _turnTime;
-
-        public void SetUpDeck(CardData[] cards, float turnTime)
+        public void SetUpDeck(CardData[] cards, ITurnUpdateProvider turnUpdateProvider)
         {
             Clear();
-
-            _turnTime = turnTime;
-
             _cardPool.InitializePool();
-
             foreach (var cardData in cards)
             {
                 var card = _cardPool.Get();
@@ -38,6 +30,8 @@ namespace ClashOfHands.Data
                 card.transform.SetAsLastSibling();
                 card.gameObject.SetActive(true);
             }
+
+            _timerUI.Initialize(turnUpdateProvider);
         }
 
         private void Clear()
@@ -48,27 +42,16 @@ namespace ClashOfHands.Data
             _cardUIs.Clear();
         }
 
-        public void StartRound()
-        {
-            _timerUI.StartTimer(_turnTime, this);
-        }
-
         public void OnCardClicked(CardData cardData, CardUI uiView)
         {
             _selectedCard = cardData;
         }
 
-        public void OnTimerExpired(float duration)
-        {
-            _cardInputPoller.PollCardInput();
-        }
-
         public int PlayerIndex { get; set; }
 
-        public void RegisterToInputPoller(ICardInputPoller inputPoller)
+        public void RegisterToInputPoller(ICardInputReceiver inputReceiver)
         {
-            _cardInputPoller = inputPoller;
-            PlayerIndex = inputPoller.RegisterCardInputReceiver(this);
+            PlayerIndex = inputReceiver.RegisterCardInputReceiver(this);
         }
 
         public CardData GetCardInput()

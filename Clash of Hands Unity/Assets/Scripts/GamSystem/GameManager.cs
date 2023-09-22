@@ -2,28 +2,57 @@ using System.Collections.Generic;
 using ClashOfHands.Data;
 using NaughtyAttributes;
 using UnityEngine;
+using DG.Tweening;
 
 namespace ClashOfHands.Systems
 {
-    public interface ICardInputPoller
+    public enum TurnState
     {
-        public int RegisterCardInputReceiver(ICardInputProvider cardInputProvider);
-        public void PollCardInput();
+        TurnStart,
+        TurnEnd,
+        Wait,
     }
 
-    public interface ITurnUpdateHandler
+    public enum GameMode
     {
-        public void OnTurnBegin();
+        Arcade,
+        Elimination,
+    }
+
+    public interface ITurnStateChangeReceiver
+    {
+        public void OnTurnUpdate(TurnState state);
     }
 
     public interface ITurnUpdateProvider
     {
-        public void RegisterForTurnUpdates(ITurnUpdateHandler handler);
-        public void UnRegisterForTurnUpdates(ITurnUpdateHandler handler);
+        public void RegisterForTurnStateUpdates(ITurnStateChangeReceiver receiver);
+        public void UnRegisterForTurnUpdates(ITurnStateChangeReceiver receiver);
+        public void RegisterForTurnTickUpdates(ITimerTickHandler receiver);
+        public void UnRegisterForTurnUpdates(ITimerTickHandler receiver);
     }
 
-    public class GameManager : MonoBehaviourSingleton<GameManager>, ICardInputPoller, ITurnUpdateProvider
+    public interface ICardInputReceiver
     {
+        public int RegisterCardInputReceiver(ICardInputProvider cardInputProvider);
+    }
+
+    public class GameManager : MonoBehaviourSingleton<GameManager>, ICardInputReceiver, ITurnUpdateProvider,
+        ITimerTickHandler
+    {
+        private enum GameState
+        {
+            GameStart,
+            Countdown,
+            PreTurn,
+            InTurn,
+            PostTurn,
+            ScoreEvaluation,
+            GameResolution,
+            Pause,
+            Wait,
+        }
+
         [SerializeField]
         private GameData _gameData;
 
@@ -34,6 +63,12 @@ namespace ClashOfHands.Systems
         private float _turnTime = 1f;
 
         [SerializeField]
+        private Timer _timer;
+
+        [SerializeField]
+        private GameMode _gameMode;
+
+        [SerializeField]
         private AIPlayers _aiPlayers;
 
         [SerializeField]
@@ -41,26 +76,33 @@ namespace ClashOfHands.Systems
 
         private ICardInputProvider[] _cardInputs;
         private int[] _playerScores;
-        private int[] _playerResults;
+        private int[] _playerRoundResults;
         private CardData[] _playedCards;
         private int[] _normalizedScores;
 
-        private Sprite[] _otherAvatarSprites;
+        private Sprite[] _avatarSprites;
 
         private int _playerIndices = 0;
 
         private Sprite[] AvatarSprites => _avatarDatabase.Avatars;
 
-        private List<ITurnUpdateHandler> _turnBeginHandlers = new(8);
+        private readonly List<ITurnStateChangeReceiver> _turnStateChangeReceivers = new(8);
+        private readonly List<ITimerTickHandler> _turnTickHandlers = new(4);
+
+        private TweenCallback _startTurnCallback;
+
+        private GameState _state;
 
         private void Start()
         {
+            _startTurnCallback = StartTurn;
+
             var playerCount = _gameData.Players;
             _cardInputs = new ICardInputProvider[playerCount];
-            _otherAvatarSprites = new Sprite[playerCount - 1];
+            _avatarSprites = new Sprite[playerCount];
             _playedCards = new CardData[playerCount];
             _playerScores = new int[playerCount];
-            _playerResults = new int[playerCount];
+            _playerRoundResults = new int[playerCount];
             _normalizedScores = new int[playerCount];
 
             var hasPlayerData = _player.LoadPlayerData();
@@ -73,6 +115,8 @@ namespace ClashOfHands.Systems
             }
 
             GameHUD.Instance.Hide();
+
+            _state = GameState.Wait;
         }
 
         public void ResetGame()
@@ -83,21 +127,75 @@ namespace ClashOfHands.Systems
             for (int i = 0; i < _playerScores.Length; i++)
                 _playerScores[i] = 0;
 
-            for (int i = 0; i < _playerResults.Length; i++)
-                _playerResults[i] = 0;
+            for (int i = 0; i < _playerRoundResults.Length; i++)
+                _playerRoundResults[i] = 0;
 
             for (int i = 0; i < _normalizedScores.Length; i++)
                 _normalizedScores[i] = 0;
 
-            for (int i = 0; i < _otherAvatarSprites.Length; i++)
-                _otherAvatarSprites[i] = null;
+            for (int i = 0; i < _avatarSprites.Length; i++)
+                _avatarSprites[i] = null;
         }
 
-        [Button]
+        private void Update()
+        {
+            switch (_state)
+            {
+                case GameState.GameStart:
+                    SetState(GameState.Wait);
+                    break;
+
+                case GameState.Countdown:
+                    SetState(GameState.Wait);
+
+                    ShowCountdown();
+                    break;
+
+                case GameState.PreTurn:
+                    SetState(GameState.InTurn);
+                    break;
+
+                case GameState.InTurn:
+                    SetState(GameState.Wait);
+                    break;
+
+                case GameState.PostTurn:
+                    SetState(GameState.ScoreEvaluation);
+                    break;
+
+                case GameState.ScoreEvaluation:
+                    SetState(GameState.ScoreEvaluation);
+                    break;
+
+                case GameState.GameResolution:
+                    SetState(GameState.Wait);
+                    break;
+
+                case GameState.Pause:
+                    //Do nothing I guess.
+                    break;
+
+                case GameState.Wait:
+
+                    break;
+            }
+        }
+
+        private void ShowCountdown()
+        {
+            GameHUD.Instance.ShowCountdown(_startTurnCallback);
+        }
+
+        private void SetState(GameState state)
+        {
+            _state = state;
+        }
+
         public void SetUpGame()
         {
             RegisterInputSources();
             InitializeGameUI();
+            SetState(GameState.Countdown);
         }
 
         private void RegisterInputSources()
@@ -107,34 +205,139 @@ namespace ClashOfHands.Systems
             GameHUD.Instance.RegisterPlayerInput(this, _player.PlayerIndex);
 
             //Set AI
-            _aiPlayers.Initialize(_gameData, this, _gameData.Players - 1, AvatarSprites.Length);
+            _aiPlayers.Initialize(_gameData, this, _gameData.Players - 1);
 
-            for (int i = 0; i < _aiPlayers.Length; i++)
-                _otherAvatarSprites[i] = AvatarSprites[_aiPlayers[i].AvatarIndex];
+            for (int i = 0; i < _cardInputs.Length; i++)
+            {
+                if (i == _player.PlayerIndex)
+                {
+                    _avatarSprites[i] = AvatarSprites[_player.AvatarId];
+                    continue;
+                }
+
+                _avatarSprites[i] = _avatarDatabase.GetRandomAvatar(out _);
+            }
         }
 
         private void InitializeGameUI()
         {
-            GameHUD.Instance.SetUpGameFromGameData(_gameData, _turnTime, this);
-            GameHUD.Instance.SetScoreHUD(_player.AvatarSprite, _otherAvatarSprites);
+            GameHUD.Instance.SetUpGameFromGameData(_gameData, turnUpdateProvider: this);
+            GameHUD.Instance.SetScoreHUD(_avatarSprites, _player.PlayerIndex, _gameMode);
         }
 
         [Button]
         public void StartTurn()
         {
-            foreach (var turnBeginHandle in _turnBeginHandlers)
-                turnBeginHandle?.OnTurnBegin();
+            BroadcastTurnUpdate(TurnState.TurnStart);
+            _timer.StartTimer(_turnTime, this);
         }
 
-        public void PollCardInput()
+        public void OnTimerTicked(float currentTime, float targetTime)
+        {
+            BroadcastTurnTicks(currentTime, targetTime);
+            if (Mathf.Approximately(Mathf.InverseLerp(0, targetTime, currentTime), 1))
+                EndTurn();
+        }
+
+        [Button]
+        public void EndTurn()
+        {
+            BroadcastTurnUpdate(TurnState.TurnEnd);
+            PollCardInput(_playedCards);
+
+            _gameData.Evaluate(_playedCards, _playerRoundResults);
+
+            for (int i = 0; i < _playerRoundResults.Length; i++)
+            {
+                var score = _playerScores[i];
+                _playerScores[i] = score + _playerRoundResults[i];
+            }
+
+            UpdateHUD(_playedCards, _playerScores);
+
+            if (_gameMode == GameMode.Elimination)
+            {
+                if (_playerRoundResults[_player.PlayerIndex] < 0)
+                {
+                    GameHUD.Instance.Hide();
+                    MainMenuManager.Instance.ShowState(MainMenuManager.States.MainMenu);
+                    return;
+                }
+            }
+
+            DOVirtual.DelayedCall(2f, _startTurnCallback);
+        }
+
+        private void BroadcastTurnUpdate(TurnState state)
+        {
+            foreach (var turnBeginHandle in _turnStateChangeReceivers)
+                turnBeginHandle?.OnTurnUpdate(state);
+        }
+
+        private void UpdateHUD(CardData[] cards, int[] playerScores)
+        {
+            //TODO : Add delay in evaluation and stuff.
+            GameHUD.Instance.ShowCards(cards);
+            GameHUD.Instance.UpdateScores(playerScores);
+        }
+
+        public void RegisterForTurnStateUpdates(ITurnStateChangeReceiver receiver)
+        {
+            _turnStateChangeReceivers.Add(receiver);
+        }
+
+        public void UnRegisterForTurnUpdates(ITurnStateChangeReceiver receiver)
+        {
+            var count = _turnStateChangeReceivers.Count;
+            for (int i = 0; i < count; i++)
+            {
+                if (ReferenceEquals(_turnStateChangeReceivers[i], receiver))
+                {
+                    var lastHandler = _turnStateChangeReceivers[count - 1];
+                    _turnStateChangeReceivers[i] = lastHandler;
+                    _turnStateChangeReceivers.RemoveAt(count - 1);
+                    count--;
+                    i--;
+                }
+            }
+        }
+
+        private void BroadcastTurnTicks(float currentTime, float targetTime)
+        {
+            foreach (var timerTickHandler in _turnTickHandlers)
+            {
+                timerTickHandler.OnTimerTicked(currentTime, targetTime);
+            }
+        }
+
+        public void RegisterForTurnTickUpdates(ITimerTickHandler receiver)
+        {
+            _turnTickHandlers.Add(receiver);
+        }
+
+        public void UnRegisterForTurnUpdates(ITimerTickHandler receiver)
+        {
+            var count = _turnTickHandlers.Count;
+            for (int i = 0; i < count; i++)
+            {
+                if (ReferenceEquals(_turnTickHandlers[i], receiver))
+                {
+                    var lastHandler = _turnTickHandlers[count - 1];
+                    _turnTickHandlers[i] = lastHandler;
+                    _turnTickHandlers.RemoveAt(count - 1);
+                    count--;
+                    i--;
+                }
+            }
+        }
+
+        private void PollCardInput(CardData[] cards)
         {
             foreach (var cardInput in _cardInputs)
             {
                 var playerIndex = cardInput.PlayerIndex;
-                _playedCards[playerIndex] = cardInput.GetCardInput();
+                cards[playerIndex] = cardInput.GetCardInput();
             }
-
-            _gameData.Evaluate(_playedCards, _playerScores);
         }
 
         public int RegisterCardInputReceiver(ICardInputProvider cardInputProvider)
@@ -149,27 +352,6 @@ namespace ClashOfHands.Systems
         {
             _player.SetAvatar(avatarId, sprite);
             _player.SaveData();
-        }
-
-        public void RegisterForTurnUpdates(ITurnUpdateHandler handler)
-        {
-            _turnBeginHandlers.Add(handler);
-        }
-
-        public void UnRegisterForTurnUpdates(ITurnUpdateHandler handler)
-        {
-            var count = _turnBeginHandlers.Count;
-            for (int i = 0; i < count; i++)
-            {
-                if (ReferenceEquals(_turnBeginHandlers[i], handler))
-                {
-                    var lastHandler = _turnBeginHandlers[count - 1];
-                    _turnBeginHandlers[i] = lastHandler;
-                    _turnBeginHandlers.RemoveAt(count - 1);
-                    count--;
-                    i--;
-                }
-            }
         }
     }
 }

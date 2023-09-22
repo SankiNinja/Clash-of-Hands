@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace ClashOfHands.UI
 {
-    public class CardShowTable : MonoBehaviour, ITurnUpdateHandler
+    public class CardShowTable : MonoBehaviour, ITurnStateChangeReceiver
     {
         [SerializeField]
         private List<CardShowUI> _showCards;
@@ -17,13 +17,16 @@ namespace ClashOfHands.UI
 
         private CardData[] _gameCards;
 
-        private List<CardShowUI> _activeCards = new List<CardShowUI>(4);
+        private readonly List<CardShowUI> _activeCards = new(4);
 
         public void Initialize(int playerCount, CardData[] gameCards, ITurnUpdateProvider turnUpdate)
         {
             _gameCards = gameCards;
             UpdateCardPosition(playerCount);
-            turnUpdate.RegisterForTurnUpdates(this);
+            turnUpdate.RegisterForTurnStateUpdates(this);
+
+            foreach (var activeCard in _activeCards)
+                activeCard.gameObject.SetActive(false);
         }
 
         private void UpdateCardPosition(int players)
@@ -55,10 +58,27 @@ namespace ClashOfHands.UI
             }
         }
 
-        public void OnTurnBegin()
+        public void OnTurnUpdate(TurnState state)
         {
-            foreach (var cardShowUI in _activeCards)
-                cardShowUI.AnimateCardIcon(_gameCards);
+            switch (state)
+            {
+                case TurnState.TurnStart:
+                    foreach (var cardShowUI in _activeCards)
+                        cardShowUI.AnimateCardIcon(_gameCards);
+                    break;
+                case TurnState.TurnEnd:
+                    foreach (var cardShowUI in _activeCards)
+                        cardShowUI.StopAnimation();
+                    break;
+                case TurnState.Wait:
+                    break;
+            }
+        }
+
+        public void ShowCards(CardData[] cards)
+        {
+            for (int i = 0; i < cards.Length; i++)
+                _activeCards[i].SetUpCard(cards[i]);
         }
 
 #if UNITY_EDITOR

@@ -28,6 +28,7 @@ namespace ClashOfHands.UI
         public void AnimateCardIcon(CardData[] cards)
         {
             _animationCards = cards;
+            gameObject.SetActive(true);
 
             if (_cardAnimationRoutine != null)
                 StopCoroutine(_cardAnimationRoutine);
@@ -45,6 +46,9 @@ namespace ClashOfHands.UI
         {
             StopAnimation();
 
+            if (cardData == null)
+                return;
+
             _icon.sprite = cardData.Sprite;
         }
 
@@ -57,14 +61,10 @@ namespace ClashOfHands.UI
         private IEnumerator AnimateIcons()
         {
             var len = _animationCards.Length;
-            var iterator = Random.Range(0, len);
-
             while (true)
             {
                 //TODO : Add pulse animation on the beat maybe.
-                _icon.sprite = _animationCards[iterator].Sprite;
-                iterator++;
-                iterator %= len;
+                _icon.sprite = _animationCards[Random.Range(0, len)].Sprite;
                 yield return _wait;
             }
 
