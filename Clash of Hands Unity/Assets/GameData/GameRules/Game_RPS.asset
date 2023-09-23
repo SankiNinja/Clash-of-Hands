@@ -27,3 +27,4 @@ MonoBehaviour:
   - Card: {fileID: 11400000, guid: 8ca536fdf75997f4a83d6c6af47f63d6, type: 2}
     Defeats:
     - {fileID: 11400000, guid: afdfd632ded77304f80557571ef71122, type: 2}
+  AnnouncerData: {fileID: 11400000, guid: 33584e89cd8042242ac97a6580756916, type: 2}

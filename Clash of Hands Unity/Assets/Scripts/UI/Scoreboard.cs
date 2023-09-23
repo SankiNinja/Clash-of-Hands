@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using ClashOfHands.Systems;
+using TMPro;
 using UnityEngine;
 
 namespace ClashOfHands.UI
@@ -10,12 +11,12 @@ namespace ClashOfHands.UI
         [SerializeField]
         private GameObject _arcadeContainer;
 
-        [SerializeField]
-        private CardUI _eliminationScoreCard;
-
         [Header("Elimination UI")]
         [SerializeField]
         private GameObject _eliminationContainer;
+
+        [SerializeField]
+        private CardUI _eliminationScoreCard;
 
         [SerializeField]
         private CardPool _scorecardPool;
@@ -23,6 +24,11 @@ namespace ClashOfHands.UI
         [SerializeField]
         private CardUI _playerScorecardUI;
 
+        [SerializeField]
+        private GameObject[] _hearts;
+
+        [SerializeField]
+        private TextMeshProUGUI _scoreText;
 
         private readonly List<CardUI> _activeScorecards = new(4);
 
@@ -58,20 +64,31 @@ namespace ClashOfHands.UI
             _gameMode = gameMode;
         }
 
-        public void UpdateScoreboard(int[] scores)
+        public void UpdateScoreboard(int[] scores, int[] roundScore, out float duration)
         {
+            duration = 0;
             if (_gameMode == GameMode.Arcade)
             {
                 for (int i = 0; i < scores.Length; i++)
                 {
+                    if (roundScore[i] == 0)
+                        continue;
+
                     _activeScorecards[i].UpdateCardLabel(scores[i].ToString());
-                    _activeScorecards[i].GetComponent<BounceScale>().Bounce(null);
+                    var bounce = _activeScorecards[i].GetComponent<BounceScale>();
+                    duration = Mathf.Max(duration, bounce.Duration);
+                    bounce.Bounce(null);
                 }
             }
             else
             {
+                if (roundScore[_localPlayerIndex] == 0)
+                    return;
+
                 _eliminationScoreCard.UpdateCardLabel(scores[_localPlayerIndex].ToString());
-                _eliminationScoreCard.GetComponent<BounceScale>().Bounce(null);
+                var bounce = _eliminationScoreCard.GetComponent<BounceScale>();
+                duration = Mathf.Max(duration, bounce.Duration);
+                bounce.Bounce(null);
             }
         }
 

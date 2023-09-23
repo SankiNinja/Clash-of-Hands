@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 9b94eea484008854cb367983e479bc61
+guid: 3ea4bf0dbeb89f14eac2ffd3f8b40453
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -43,7 +43,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -121,112 +121,7 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites:
-    - serializedVersion: 2
-      name: Rock
-      rect:
-        serializedVersion: 2
-        x: 903
-        y: 1628
-        width: 183
-        height: 333
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 2499e1d91c24cc145b75710a94e8e380
-      internalID: 718864909
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Lizard
-      rect:
-        serializedVersion: 2
-        x: 172
-        y: 1038
-        width: 228
-        height: 340
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 2db367d608b68404cbad4a2fb5814103
-      internalID: -838196759
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Paper
-      rect:
-        serializedVersion: 2
-        x: 1591
-        y: 1076
-        width: 209
-        height: 340
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: b1d9e2eb3c772b44c9a33ae7de2446b4
-      internalID: 264556694
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Spock
-      rect:
-        serializedVersion: 2
-        x: 432
-        y: 230
-        width: 219
-        height: 340
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 5e83af767d4270b418dec9151e39dc48
-      internalID: -251516949
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Scissors
-      rect:
-        serializedVersion: 2
-        x: 1366
-        y: 262
-        width: 167
-        height: 340
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: c65ad9fa4a5eb9c41955158acf667b25
-      internalID: -217364951
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
+    sprites: []
     outline: []
     physicsShape: []
     bones: []
@@ -237,23 +132,7 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable:
-      Lizard: -838196759
-      Paper: 264556694
-      Rock: 718864909
-      SPSLS_Open_Clip_Art_1: -1669654251
-      SPSLS_Open_Clip_Art_10: 2098510164
-      SPSLS_Open_Clip_Art_12: -1561932744
-      SPSLS_Open_Clip_Art_14: 528069171
-      SPSLS_Open_Clip_Art_15: -2062194587
-      SPSLS_Open_Clip_Art_2: 1847521959
-      SPSLS_Open_Clip_Art_3: 1564406343
-      SPSLS_Open_Clip_Art_5: 981063268
-      SPSLS_Open_Clip_Art_7: 552885013
-      SPSLS_Open_Clip_Art_8: 1942765260
-      SPSLS_Open_Clip_Art_9: -87469923
-      Scissors: -217364951
-      Spock: -251516949
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

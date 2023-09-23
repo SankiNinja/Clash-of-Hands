@@ -7,7 +7,6 @@ namespace ClashOfHands.UI
     public class BounceScale : MonoBehaviour
     {
         [SerializeField]
-        [MinMaxSlider(0, 5)]
         private Vector2 _scale;
 
         [SerializeField]
@@ -26,6 +25,8 @@ namespace ClashOfHands.UI
             Time = 0.2f,
             Ease = Ease.OutExpo
         };
+
+        public float Duration => _bounceIn.Time + _bounceOut.Time + _idleTime;
 
         public void Bounce(TweenCallback onBounceComplete)
         {

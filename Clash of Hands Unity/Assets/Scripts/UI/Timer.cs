@@ -14,7 +14,7 @@ namespace ClashOfHands.Systems
         private IEnumerator _routine;
 
         private float _targetTime = -1;
-        private float _currentTime = 0;
+        private float _currentTime;
         private ITimerTickHandler _tickHandler;
 
         public void StartTimer(float sec, ITimerTickHandler tickHandler)
@@ -33,6 +33,13 @@ namespace ClashOfHands.Systems
 
             _currentTime += Time.deltaTime;
             _tickHandler.OnTimerTicked(_currentTime, _targetTime);
+        }
+
+        public void StopTimer(bool notify = false)
+        {
+            _currentTime = _targetTime + Time.deltaTime;
+            if (notify)
+                _tickHandler.OnTimerTicked(_currentTime, _targetTime);
         }
     }
 }

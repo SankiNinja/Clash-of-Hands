@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3301506c454b18488bf37c746ebb58e, type: 3}
+  m_Name: Announcer_Data_RPS
+  m_EditorClassIdentifier: 
+  Interactions:
+  - CardA: {fileID: 11400000, guid: afdfd632ded77304f80557571ef71122, type: 2}
+    CardB: {fileID: 11400000, guid: afdfd632ded77304f80557571ef71122, type: 2}
+    Text: Just rocks hanging out
+  - CardA: {fileID: 11400000, guid: afdfd632ded77304f80557571ef71122, type: 2}
+    CardB: {fileID: 11400000, guid: 04e2e6e9f4ab6df4e9c709a76ed6ceb2, type: 2}
+    Text: 'Paper covers rock''s
+
+      existence'
+  - CardA: {fileID: 11400000, guid: afdfd632ded77304f80557571ef71122, type: 2}
+    CardB: {fileID: 11400000, guid: 8ca536fdf75997f4a83d6c6af47f63d6, type: 2}
+    Text: 'Rock smashes scissor
+
+      out of spite'
+  - CardA: {fileID: 11400000, guid: 04e2e6e9f4ab6df4e9c709a76ed6ceb2, type: 2}
+    CardB: {fileID: 11400000, guid: 04e2e6e9f4ab6df4e9c709a76ed6ceb2, type: 2}
+    Text: 'Just papers
+
+      plain old boring papers'
+  - CardA: {fileID: 11400000, guid: 04e2e6e9f4ab6df4e9c709a76ed6ceb2, type: 2}
+    CardB: {fileID: 11400000, guid: 8ca536fdf75997f4a83d6c6af47f63d6, type: 2}
+    Text: 'Scissor cuts paper
+
+      Believe me paper had it coming'
+  - CardA: {fileID: 11400000, guid: 8ca536fdf75997f4a83d6c6af47f63d6, type: 2}
+    CardB: {fileID: 11400000, guid: 8ca536fdf75997f4a83d6c6af47f63d6, type: 2}
+    Text: 'Just scissors
+
+      nothing to see here'
+  _cards:
+  - {fileID: 11400000, guid: afdfd632ded77304f80557571ef71122, type: 2}
+  - {fileID: 11400000, guid: 04e2e6e9f4ab6df4e9c709a76ed6ceb2, type: 2}
+  - {fileID: 11400000, guid: 8ca536fdf75997f4a83d6c6af47f63d6, type: 2}

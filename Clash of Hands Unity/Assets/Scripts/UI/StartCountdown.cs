@@ -12,6 +12,9 @@ namespace ClashOfHands.UI
     {
         public float Time;
         public Ease Ease;
+
+        public static TweenTimeEase InExpo => new TweenTimeEase { Time = 0.2f, Ease = DG.Tweening.Ease.InExpo };
+        public static TweenTimeEase OutExpo => new TweenTimeEase { Time = 0.2f, Ease = DG.Tweening.Ease.OutExpo };
     }
 
     public class StartCountdown : MonoBehaviour

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using ClashOfHands.Data;
 using ClashOfHands.Systems;
+using DG.Tweening;
 using NaughtyAttributes;
 using UnityEngine;
 
@@ -18,6 +19,15 @@ namespace ClashOfHands.UI
         private CardData[] _gameCards;
 
         private readonly List<CardShowUI> _activeCards = new(4);
+
+        [SerializeField]
+        private TweenTimeEase _moveIn;
+
+        [SerializeField]
+        private TweenTimeEase _scaleIn;
+
+        [SerializeField]
+        private TweenTimeEase _scaleOut = TweenTimeEase.OutExpo;
 
         public void Initialize(int playerCount, CardData[] gameCards, ITurnUpdateProvider turnUpdate)
         {
@@ -60,28 +70,45 @@ namespace ClashOfHands.UI
 
         public void OnTurnUpdate(TurnState state)
         {
-            switch (state)
+            if (state != TurnState.TurnPrep)
+                return;
+
+            foreach (var cardShowUI in _activeCards)
+                cardShowUI.transform.DOScale(Vector3.zero, _scaleOut.Time).SetEase(_scaleOut.Ease);
+        }
+
+        public void ShowCards(CardData[] cards, int playerCardIndex, RectTransform cardRect, out float completionTime)
+        {
+            completionTime = _moveIn.Time;
+
+            for (int i = 0; i < cards.Length; i++)
             {
-                case TurnState.TurnStart:
-                    foreach (var cardShowUI in _activeCards)
-                        cardShowUI.AnimateCardIcon(_gameCards);
-                    break;
-                case TurnState.TurnEnd:
-                    foreach (var cardShowUI in _activeCards)
-                        cardShowUI.StopAnimation();
-                    break;
-                case TurnState.Wait:
-                    break;
+                _activeCards[i].gameObject.SetActive(true);
+                _activeCards[i].transform.localScale = Vector3.one;
+                _activeCards[i].SetUpCard(cards[i]);
+
+                if (i == playerCardIndex)
+                {
+                    var activeCardTransform = _activeCards[i].transform;
+                    var startPosition = activeCardTransform.position;
+                    activeCardTransform.position = cardRect.transform.position;
+                    activeCardTransform.DOMove(startPosition, _moveIn.Time).SetEase(_moveIn.Ease);
+
+                    var activeCardRect = activeCardTransform.GetComponent<RectTransform>();
+                    var startSizeDelta = activeCardRect.sizeDelta;
+                    activeCardRect.sizeDelta = cardRect.sizeDelta;
+                    activeCardRect.DOSizeDelta(startSizeDelta, _scaleIn.Time).SetEase(_scaleIn.Ease);
+                    activeCardRect.DOSizeDelta(startSizeDelta, _scaleIn.Time).SetEase(_scaleIn.Ease);
+                    continue;
+                }
+
+                _activeCards[i].GetComponent<BounceScale>().Bounce(null);
             }
         }
 
-        public void ShowCards(CardData[] cards)
-        {
-            for (int i = 0; i < cards.Length; i++)
-                _activeCards[i].SetUpCard(cards[i]);
-        }
-
 #if UNITY_EDITOR
+
+        [Header("Editor Only")]
         [SerializeField]
         [Range(0, 10)]
         private int _cardDistribution = 0;

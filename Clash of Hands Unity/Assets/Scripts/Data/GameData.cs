@@ -2,7 +2,6 @@ using System;
 using NaughtyAttributes;
 using UnityEngine;
 using UnityEngine.Assertions;
-using UnityEngine.Serialization;
 
 namespace ClashOfHands.Data
 {
@@ -37,9 +36,10 @@ namespace ClashOfHands.Data
         [Header("Cards")]
         public CardData[] GameCards;
 
-        [FormerlySerializedAs("gameRules")]
         [Header("Game Rules")]
         public GameRule[] GameRules;
+
+        public AnnouncerData AnnouncerData;
 
         public void Evaluate(in CardData[] cards, int[] results)
         {

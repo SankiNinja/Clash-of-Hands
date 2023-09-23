@@ -8,6 +8,7 @@ namespace ClashOfHands.Systems
 {
     public enum TurnState
     {
+        TurnPrep,
         TurnStart,
         TurnEnd,
         Wait,
@@ -37,8 +38,13 @@ namespace ClashOfHands.Systems
         public int RegisterCardInputReceiver(ICardInputProvider cardInputProvider);
     }
 
+    public interface IPollInputTrigger
+    {
+        void CollectInput();
+    }
+
     public class GameManager : MonoBehaviourSingleton<GameManager>, ICardInputReceiver, ITurnUpdateProvider,
-        ITimerTickHandler
+        ITimerTickHandler, IPollInputTrigger
     {
         private enum GameState
         {
@@ -75,26 +81,25 @@ namespace ClashOfHands.Systems
         private Player _player;
 
         private ICardInputProvider[] _cardInputs;
+        private CardData[] _playedCards;
         private int[] _playerScores;
         private int[] _playerRoundResults;
-        private CardData[] _playedCards;
         private int[] _normalizedScores;
 
         private Sprite[] _avatarSprites;
 
-        private int _playerIndices = 0;
+        private int _playerIndices;
 
         private Sprite[] AvatarSprites => _avatarDatabase.Avatars;
 
         private readonly List<ITurnStateChangeReceiver> _turnStateChangeReceivers = new(8);
         private readonly List<ITimerTickHandler> _turnTickHandlers = new(4);
 
-        private TweenCallback _startTurnCallback;
-
         private GameState _state;
 
         private void Start()
         {
+            _prepTurnCallback = PerpTurn;
             _startTurnCallback = StartTurn;
 
             var playerCount = _gameData.Players;
@@ -183,7 +188,7 @@ namespace ClashOfHands.Systems
 
         private void ShowCountdown()
         {
-            GameHUD.Instance.ShowCountdown(_startTurnCallback);
+            GameHUD.Instance.ShowCountdown(_prepTurnCallback);
         }
 
         private void SetState(GameState state)
@@ -202,7 +207,7 @@ namespace ClashOfHands.Systems
         {
             //Set Player
             _player.SetPlayerIndex(_playerIndices);
-            GameHUD.Instance.RegisterPlayerInput(this, _player.PlayerIndex);
+            GameHUD.Instance.RegisterPlayerInput(this);
 
             //Set AI
             _aiPlayers.Initialize(_gameData, this, _gameData.Players - 1);
@@ -221,9 +226,21 @@ namespace ClashOfHands.Systems
 
         private void InitializeGameUI()
         {
-            GameHUD.Instance.SetUpGameFromGameData(_gameData, turnUpdateProvider: this);
+            GameHUD.Instance.Initialize(_gameData, turnUpdateProvider: this, pollInputTrigger: this);
             GameHUD.Instance.SetScoreHUD(_avatarSprites, _player.PlayerIndex, _gameMode);
         }
+
+        private TweenCallback _prepTurnCallback;
+
+        [Button]
+        public void PerpTurn()
+        {
+            BroadcastTurnUpdate(TurnState.TurnPrep);
+            var setupTime = GameHUD.Instance.GetDeckSetupDuration();
+            DOVirtual.DelayedCall(setupTime, _startTurnCallback);
+        }
+
+        private TweenCallback _startTurnCallback;
 
         [Button]
         public void StartTurn()
@@ -253,7 +270,8 @@ namespace ClashOfHands.Systems
                 _playerScores[i] = score + _playerRoundResults[i];
             }
 
-            UpdateHUD(_playedCards, _playerScores);
+            GameHUD.Instance.UpdateHUDPostTurn(_playedCards, _playerScores, _playerRoundResults, _player.PlayerIndex,
+                _prepTurnCallback);
 
             if (_gameMode == GameMode.Elimination)
             {
@@ -261,24 +279,16 @@ namespace ClashOfHands.Systems
                 {
                     GameHUD.Instance.Hide();
                     MainMenuManager.Instance.ShowState(MainMenuManager.States.MainMenu);
-                    return;
                 }
             }
 
-            DOVirtual.DelayedCall(2f, _startTurnCallback);
+            SetState(GameState.Wait);
         }
 
         private void BroadcastTurnUpdate(TurnState state)
         {
             foreach (var turnBeginHandle in _turnStateChangeReceivers)
                 turnBeginHandle?.OnTurnUpdate(state);
-        }
-
-        private void UpdateHUD(CardData[] cards, int[] playerScores)
-        {
-            //TODO : Add delay in evaluation and stuff.
-            GameHUD.Instance.ShowCards(cards);
-            GameHUD.Instance.UpdateScores(playerScores);
         }
 
         public void RegisterForTurnStateUpdates(ITurnStateChangeReceiver receiver)
@@ -352,6 +362,12 @@ namespace ClashOfHands.Systems
         {
             _player.SetAvatar(avatarId, sprite);
             _player.SaveData();
+        }
+
+        public void CollectInput()
+        {
+            _timer.StopTimer();
+            EndTurn();
         }
     }
 }
