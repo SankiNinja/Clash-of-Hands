@@ -12,6 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d3301506c454b18488bf37c746ebb58e, type: 3}
   m_Name: Announcer_Data_RPSLS
   m_EditorClassIdentifier: 
+  MissTurn: 'Hey!
+
+    Do Something'
   Interactions:
   - CardA: {fileID: 11400000, guid: afdfd632ded77304f80557571ef71122, type: 2}
     CardB: {fileID: 11400000, guid: afdfd632ded77304f80557571ef71122, type: 2}
@@ -55,7 +58,7 @@ MonoBehaviour:
     CardB: {fileID: 11400000, guid: 2d019ffb76c406045b502c486173201c, type: 2}
     Text: 'Paper disproves Spock
 
-      and makes him mad'
+      Spock is bamboozled'
   - CardA: {fileID: 11400000, guid: 8ca536fdf75997f4a83d6c6af47f63d6, type: 2}
     CardB: {fileID: 11400000, guid: 8ca536fdf75997f4a83d6c6af47f63d6, type: 2}
     Text: 'Just scissors
@@ -63,7 +66,7 @@ MonoBehaviour:
       nothing to see here'
   - CardA: {fileID: 11400000, guid: 8ca536fdf75997f4a83d6c6af47f63d6, type: 2}
     CardB: {fileID: 11400000, guid: 4bf1d0e1679673242835db1f9cd90f56, type: 2}
-    Text: Scissor cuts lizard for no reason at all.
+    Text: Scissor cuts lizard for no reason at all
   - CardA: {fileID: 11400000, guid: 8ca536fdf75997f4a83d6c6af47f63d6, type: 2}
     CardB: {fileID: 11400000, guid: 2d019ffb76c406045b502c486173201c, type: 2}
     Text: "Spock smashes Scissors\nin a sheer display of strength\r"
@@ -79,7 +82,7 @@ MonoBehaviour:
       Alas poor Spock finally meets his match'
   - CardA: {fileID: 11400000, guid: 2d019ffb76c406045b502c486173201c, type: 2}
     CardB: {fileID: 11400000, guid: 2d019ffb76c406045b502c486173201c, type: 2}
-    Text: Spocks from different universes admire each other
+    Text: Just Spocks admiring each other
   _cards:
   - {fileID: 11400000, guid: afdfd632ded77304f80557571ef71122, type: 2}
   - {fileID: 11400000, guid: 04e2e6e9f4ab6df4e9c709a76ed6ceb2, type: 2}

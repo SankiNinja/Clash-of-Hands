@@ -1,5 +1,4 @@
-using System.Collections.Generic;
-using ClashOfHands.Systems;
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 
@@ -7,102 +6,81 @@ namespace ClashOfHands.UI
 {
     public class Scoreboard : MonoBehaviour
     {
-        [Header("Arcade UI")]
         [SerializeField]
-        private GameObject _arcadeContainer;
-
-        [Header("Elimination UI")]
-        [SerializeField]
-        private GameObject _eliminationContainer;
-
-        [SerializeField]
-        private CardUI _eliminationScoreCard;
-
-        [SerializeField]
-        private CardPool _scorecardPool;
-
-        [SerializeField]
-        private CardUI _playerScorecardUI;
-
-        [SerializeField]
-        private GameObject[] _hearts;
+        private BounceScale[] _hearts;
 
         [SerializeField]
         private TextMeshProUGUI _scoreText;
 
-        private readonly List<CardUI> _activeScorecards = new(4);
+        [SerializeField]
+        private BounceScale _scoreBounce;
 
-        private GameMode _gameMode;
+        private int _hideIndex;
 
-        private int _localPlayerIndex;
+        private TweenCallback _hideAtIndex;
 
-        public void Initialize(Sprite[] avatarSprites, int playerIndex, GameMode gameMode)
+        public void Initialize(int hearts)
         {
-            if (gameMode == GameMode.Arcade)
-            {
-                ClearAll();
+            gameObject.SetActive(true);
+            _scoreText.SetText("Score : {0}", 0);
 
-                _scorecardPool.InitializePool();
-                for (var i = 0; i < avatarSprites.Length; i++)
+            for (int i = 0; i < _hearts.Length; i++)
+            {
+                var heart = _hearts[i];
+                if (i < hearts)
                 {
-                    var avatarSprite = avatarSprites[i];
-                    var card = i == playerIndex ? _playerScorecardUI : _scorecardPool.Get();
-                    card.gameObject.SetActive(true);
-                    card.UpdateCardUI("0", avatarSprite);
-                    _activeScorecards.Add(card);
+                    heart.gameObject.SetActive(true);
+                    heart.BounceIn();
+                }
+                else
+                {
+                    heart.gameObject.SetActive(false);
                 }
             }
-            else
-            {
-                _eliminationScoreCard.UpdateCardUI("0", avatarSprites[playerIndex]);
-            }
-
-            _localPlayerIndex = playerIndex;
-            _arcadeContainer.SetActive(gameMode == GameMode.Arcade);
-            _eliminationContainer.SetActive(gameMode == GameMode.Elimination);
-
-            _gameMode = gameMode;
         }
 
-        public void UpdateScoreboard(int[] scores, int[] roundScore, out float duration)
+        public void UpdateScoreboard(int playerScore, int roundScore, int hearts, out float duration)
         {
             duration = 0;
-            if (_gameMode == GameMode.Arcade)
-            {
-                for (int i = 0; i < scores.Length; i++)
-                {
-                    if (roundScore[i] == 0)
-                        continue;
 
-                    _activeScorecards[i].UpdateCardLabel(scores[i].ToString());
-                    var bounce = _activeScorecards[i].GetComponent<BounceScale>();
-                    duration = Mathf.Max(duration, bounce.Duration);
-                    bounce.Bounce(null);
-                }
-            }
-            else
+            for (int i = 0; i < _hearts.Length; i++)
             {
-                if (roundScore[_localPlayerIndex] == 0)
+                if (roundScore == 0)
                     return;
 
-                _eliminationScoreCard.UpdateCardLabel(scores[_localPlayerIndex].ToString());
-                var bounce = _eliminationScoreCard.GetComponent<BounceScale>();
-                duration = Mathf.Max(duration, bounce.Duration);
-                bounce.Bounce(null);
+                var heart = _hearts[i];
+                if (i < hearts)
+                {
+                    if (heart.gameObject.activeSelf)
+                        continue;
+
+                    heart.gameObject.SetActive(true);
+                    duration = Mathf.Max(duration, heart.BounceIn());
+                }
+                else
+                {
+                    if (heart.gameObject.activeSelf == false)
+                        continue;
+
+                    duration = Mathf.Max(duration, heart.BounceOut());
+                    _hideIndex = i;
+
+                    _hideAtIndex ??= HideAtIndex;
+                    DOVirtual.DelayedCall(duration, _hideAtIndex);
+                }
             }
+
+            if (roundScore != 1)
+                return;
+
+            _scoreText.SetText("Score : {0}", playerScore);
+            _scoreBounce.Bounce(null);
+            duration = Mathf.Max(duration, _scoreBounce.Duration);
         }
 
-        private void ClearAll()
+        private void HideAtIndex()
         {
-            foreach (var scorecard in _activeScorecards)
-            {
-                if (ReferenceEquals(_playerScorecardUI, scorecard))
-                    continue;
-
-                scorecard.Clear();
-            }
-
-            _activeScorecards.Clear();
+            _hearts[_hideIndex].gameObject.SetActive(false);
         }
     }
 }

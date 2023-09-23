@@ -25,24 +25,31 @@ namespace ClashOfHands.Systems
         [SerializeField]
         private StartCountdown _countdown;
 
+        [SerializeField]
+        private GameOver _gameOver;
+
         private TweenCallback _playAnnouncement;
         private TweenCallback _updateScores;
         private TweenCallback _startNewTurnCallback;
 
-        private int[] _playerScores;
-        private int[] _roundResults;
+        private int _playerScore;
+        private int _roundResult;
+        private int _playerHearts;
 
-        public void Initialize(GameData gameData, ITurnUpdateProvider turnUpdateProvider,
+        public void Initialize(GameData gameData, int hearts, ITurnUpdateProvider turnUpdateProvider,
             IPollInputTrigger pollInputTrigger)
         {
-            _visual.SetActive(true);
-            _cardDeck.SetUpDeck(gameData.GameCards, turnUpdateProvider, pollInputTrigger);
-            _cardTable.Initialize(gameData.Players, gameData.GameCards, turnUpdateProvider);
-            _countdown.Initialize(gameData.GameCards);
-            _announcer.Initialize(gameData.AnnouncerData);
-
             _playAnnouncement = _announcer.PlayAnnouncement;
             _updateScores = UpdateScores;
+
+            _visual.SetActive(true);
+            _gameOver.gameObject.SetActive(false);
+
+            _cardDeck.Initialize(gameData.GameCards, turnUpdateProvider, pollInputTrigger);
+            _cardTable.Initialize(gameData.Players, turnUpdateProvider);
+            _countdown.Initialize();
+            _announcer.Initialize(gameData.AnnouncerData);
+            _scoreboard.Initialize(hearts);
         }
 
         public void RegisterPlayerInput(ICardInputReceiver inputReceiver)
@@ -50,26 +57,25 @@ namespace ClashOfHands.Systems
             _cardDeck.RegisterToInputPoller(inputReceiver);
         }
 
-        public void SetScoreHUD(Sprite[] sprites, int playerIndex, GameMode gameMode)
-        {
-            _scoreboard.Initialize(sprites, playerIndex, gameMode);
-        }
-
         public void Hide()
         {
             _visual.gameObject.SetActive(false);
+            _gameOver.gameObject.SetActive(false);
         }
 
-        public void UpdateHUDPostTurn(CardData[] cards, int[] playerScores, int[] roundResults, int playerIndex,
+        public void UpdateHUDPostTurn(CardData[] cards, int playerScore, int roundResult, int playerIndex,
+            int playerHearts,
             TweenCallback startNewTurnCallback)
         {
             _startNewTurnCallback = startNewTurnCallback;
-            _playerScores = playerScores;
-            _roundResults = roundResults;
+            _playerScore = playerScore;
+            _roundResult = roundResult;
+            _playerHearts = playerHearts;
 
             _cardTable.ShowCards(cards, _cardDeck.PlayerIndex, _cardDeck.SelectedCardRect, out var showTime);
 
-            _announcer.BuildAnnouncements(cards, roundResults[playerIndex], playerIndex, out var announcementTime);
+            _announcer.BuildAnnouncements(cards, _roundResult, playerIndex, out var announcementTime);
+
             DOVirtual.DelayedCall(showTime, _playAnnouncement);
 
             DOVirtual.DelayedCall(showTime + announcementTime, _updateScores);
@@ -82,13 +88,19 @@ namespace ClashOfHands.Systems
 
         private void UpdateScores()
         {
-            _scoreboard.UpdateScoreboard(_playerScores, _roundResults, out var duration);
+            _scoreboard.UpdateScoreboard(_playerScore, _roundResult, _playerHearts, out var duration);
             DOVirtual.DelayedCall(duration, _startNewTurnCallback);
         }
 
         public void ShowCountdown(TweenCallback startTurn)
         {
             _countdown.Animate(startTurn);
+        }
+
+        public void ShowGamOver(int currentScore, int highScore)
+        {
+            _visual.SetActive(false);
+            _gameOver.SetGameOver(currentScore, highScore);
         }
     }
 }

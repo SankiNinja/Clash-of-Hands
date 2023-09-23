@@ -1,5 +1,4 @@
 using System;
-using ClashOfHands.Data;
 using DG.Tweening;
 using NaughtyAttributes;
 using UnityEngine;
@@ -41,13 +40,13 @@ namespace ClashOfHands.UI
         private TweenCallback _setGoText;
         private TweenCallback _hideGameObject;
 
-        private CardData[] _cards;
+        private const int StartCount = 3;
 
-        private int _iterator = 0;
+        private int _iterator = 3;
 
-        public void Initialize(CardData[] cards)
+        public void Initialize()
         {
-            _cards = cards;
+            gameObject.SetActive(true);
             CreateTween();
         }
 
@@ -60,12 +59,12 @@ namespace ClashOfHands.UI
 
             _countdownSequence = DOTween.Sequence();
 
-            _iterator = 0;
+            _iterator = 3;
 
             _countdownSequence.AppendCallback(_setReadyText);
             AppendBounce(_countdownSequence);
 
-            for (int i = 0; i < _cards.Length; i++)
+            for (int i = 0; i < StartCount; i++)
             {
                 _countdownSequence.AppendCallback(_updateTextLabelTween);
                 AppendBounce(_countdownSequence);
@@ -94,7 +93,7 @@ namespace ClashOfHands.UI
         public void Animate(TweenCallback onCompleted)
         {
             gameObject.SetActive(true);
-            _iterator = 0;
+            _iterator = StartCount;
             _countdownSequence.onComplete = onCompleted;
             _countdownSequence.Restart();
             _countdownSequence.Play();
@@ -102,8 +101,8 @@ namespace ClashOfHands.UI
 
         private void UpdateTextLabel()
         {
-            _timerLabel.SetText(_cards[_iterator].DisplayName);
-            _iterator++;
+            _timerLabel.SetText(_iterator.ToString());
+            _iterator--;
         }
 
         private void SetReadyText()
@@ -117,9 +116,6 @@ namespace ClashOfHands.UI
         }
 
 #if UNITY_EDITOR
-        [SerializeField]
-        private GameData _gameData;
-
         [Button]
         public void DemoAnimation()
         {
@@ -130,7 +126,7 @@ namespace ClashOfHands.UI
         public void Rebuild()
         {
             _countdownSequence?.Kill();
-            Initialize(_gameData.GameCards);
+            Initialize();
             CreateTween();
         }
 #endif

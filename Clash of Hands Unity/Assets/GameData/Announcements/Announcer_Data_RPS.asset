@@ -12,6 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d3301506c454b18488bf37c746ebb58e, type: 3}
   m_Name: Announcer_Data_RPS
   m_EditorClassIdentifier: 
+  MissTurn: 'Hey!
+
+    Do Something'
   Interactions:
   - CardA: {fileID: 11400000, guid: afdfd632ded77304f80557571ef71122, type: 2}
     CardB: {fileID: 11400000, guid: afdfd632ded77304f80557571ef71122, type: 2}

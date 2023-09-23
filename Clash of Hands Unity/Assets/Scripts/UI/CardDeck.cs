@@ -38,9 +38,11 @@ namespace ClashOfHands.UI
 
         public float PerpTime => Mathf.Max(_scaleIn.Time, _scaleOut.Time);
 
-        public void SetUpDeck(CardData[] cards, ITurnUpdateProvider turnUpdateProvider,
+        public void Initialize(CardData[] cards, ITurnUpdateProvider turnUpdateProvider,
             IPollInputTrigger pollInputTrigger)
         {
+            gameObject.SetActive(true);
+
             turnUpdateProvider.RegisterForTurnStateUpdates(this);
             _pollInputTrigger = pollInputTrigger;
 
@@ -76,7 +78,6 @@ namespace ClashOfHands.UI
             _selectedCard = cardData;
             _selectedCardRect = uiView.GetComponent<RectTransform>();
             _pollInputTrigger?.CollectInput();
-            AnimateOutDeck();
         }
 
         public int PlayerIndex { get; set; }
@@ -94,7 +95,15 @@ namespace ClashOfHands.UI
         public void OnTurnUpdate(TurnState state)
         {
             if (state == TurnState.TurnPrep)
+            {
+                _selectedCard = null;
+                _selectedCardRect = null;
+
                 AnimateInDeck();
+            }
+
+            if (state == TurnState.TurnEnd)
+                AnimateOutDeck();
 
             _turnState = state;
         }

@@ -44,15 +44,17 @@ namespace ClashOfHands.UI
 
         private TweenCallback _hideTexts;
 
-        private readonly List<string> _announcementsString = new(16);
+        private readonly List<string> _announcementStrings = new(16);
         private int _result;
 
-        private int _iterator;
+        private int _announcementIterator;
 
         private Sequence _sequence;
 
         public void Initialize(AnnouncerData announcerData)
         {
+            gameObject.SetActive(true);
+
             _announcerData = announcerData;
             _showAnnouncement = ShowAnnouncement;
             _showResult = ShowResult;
@@ -64,17 +66,25 @@ namespace ClashOfHands.UI
         public void BuildAnnouncements(CardData[] cards, int result, int playerIndex, out float duration)
         {
             duration = 0;
-            _iterator = 0;
+            _announcementIterator = 0;
             _result = result;
-            _announcementsString.Clear();
+            _announcementStrings.Clear();
 
             var playerCard = cards[playerIndex];
-            for (int i = 0; i < cards.Length; i++)
-            {
-                if (i == playerIndex)
-                    continue;
 
-                _announcementsString.Add(_announcerData.GetAnnouncementFor(playerCard, cards[i]));
+            if (playerCard != null)
+            {
+                for (int i = 0; i < cards.Length; i++)
+                {
+                    if (i == playerIndex)
+                        continue;
+
+                    _announcementStrings.Add(_announcerData.GetAnnouncementFor(playerCard, cards[i]));
+                }
+            }
+            else
+            {
+                _announcementStrings.Add(_announcerData.MissTurn);
             }
 
             _sequence = DOTween.Sequence();
@@ -82,7 +92,7 @@ namespace ClashOfHands.UI
             _sequence.AppendInterval(_startDelay);
             duration += _startDelay;
 
-            for (int i = 0; i < _announcementsString.Count; i++)
+            for (int i = 0; i < _announcementStrings.Count; i++)
             {
                 _sequence.AppendCallback(_showAnnouncement);
                 _sequence.AppendInterval(_announcerAnim.Duration);
@@ -105,11 +115,11 @@ namespace ClashOfHands.UI
         {
             _roundResultText.gameObject.SetActive(false);
 
-            _announcerText.SetText(_announcementsString[_iterator]);
+            _announcerText.SetText(_announcementStrings[_announcementIterator]);
             _announcerText.gameObject.SetActive(true);
 
             _announcerAnim.Bounce(null);
-            _iterator++;
+            _announcementIterator++;
         }
 
         private void ShowResult()

@@ -39,14 +39,40 @@ namespace ClashOfHands.UI
             sequence.Play();
         }
 
+        public float BounceIn()
+        {
+            transform.localScale = Vector3.one * _scale.x;
+            transform.DOScale(Vector3.one * _scale.y, _bounceIn.Time).SetEase(_bounceIn.Ease);
+            return _bounceIn.Time;
+        }
+
+        public float BounceOut()
+        {
+            transform.localScale = Vector3.one * _scale.y;
+            transform.DOScale(Vector3.one * _scale.x, _bounceOut.Time).SetEase(_bounceOut.Ease);
+            return _bounceOut.Time;
+        }
+
 #if UNITY_EDITOR
 
         [Button]
         public void DemoBounce()
         {
-            Bounce(() => { print("Done."); });
+            Bounce(() => { print("Full Bounce Done."); });
         }
 
+        [Button]
+        public void DemoBounceIn()
+        {
+            BounceIn();
+        }
+
+
+        [Button]
+        public void DemoBounceOut()
+        {
+            BounceOut();
+        }
 #endif
     }
 }

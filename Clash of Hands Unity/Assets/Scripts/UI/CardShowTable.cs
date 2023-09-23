@@ -14,9 +14,7 @@ namespace ClashOfHands.UI
 
         [SerializeField]
         [Range(0, 350)]
-        private float spacing = 0;
-
-        private CardData[] _gameCards;
+        private float spacing;
 
         private readonly List<CardShowUI> _activeCards = new(4);
 
@@ -29,9 +27,10 @@ namespace ClashOfHands.UI
         [SerializeField]
         private TweenTimeEase _scaleOut = TweenTimeEase.OutExpo;
 
-        public void Initialize(int playerCount, CardData[] gameCards, ITurnUpdateProvider turnUpdate)
+        public void Initialize(int playerCount, ITurnUpdateProvider turnUpdate)
         {
-            _gameCards = gameCards;
+            gameObject.SetActive(true);
+
             UpdateCardPosition(playerCount);
             turnUpdate.RegisterForTurnStateUpdates(this);
 
@@ -41,9 +40,6 @@ namespace ClashOfHands.UI
 
         private void UpdateCardPosition(int players)
         {
-            foreach (var activeCard in _activeCards)
-                activeCard.StopAnimation();
-
             _activeCards.Clear();
 
             if (players == 0)
@@ -77,32 +73,45 @@ namespace ClashOfHands.UI
                 cardShowUI.transform.DOScale(Vector3.zero, _scaleOut.Time).SetEase(_scaleOut.Ease);
         }
 
-        public void ShowCards(CardData[] cards, int playerCardIndex, RectTransform cardRect, out float completionTime)
+        public void ShowCards(CardData[] cards, int playerCardIndex, RectTransform selectedCardRect,
+            out float completionTime)
         {
             completionTime = _moveIn.Time;
 
             for (int i = 0; i < cards.Length; i++)
             {
-                _activeCards[i].gameObject.SetActive(true);
-                _activeCards[i].transform.localScale = Vector3.one;
-                _activeCards[i].SetUpCard(cards[i]);
+                var showCardUI = _activeCards[i];
+                if (cards[i] == null)
+                    continue;
+
+                showCardUI.gameObject.SetActive(true);
+                
+                var cardTransform = showCardUI.transform;
+                cardTransform.localScale = Vector3.one;
+                
+                showCardUI.SetUpCard(cards[i]);
 
                 if (i == playerCardIndex)
                 {
-                    var activeCardTransform = _activeCards[i].transform;
-                    var startPosition = activeCardTransform.position;
-                    activeCardTransform.position = cardRect.transform.position;
-                    activeCardTransform.DOMove(startPosition, _moveIn.Time).SetEase(_moveIn.Ease);
+                    if (selectedCardRect == null)
+                    {
+                        showCardUI.gameObject.SetActive(false);
+                        continue;
+                    }
 
-                    var activeCardRect = activeCardTransform.GetComponent<RectTransform>();
-                    var startSizeDelta = activeCardRect.sizeDelta;
-                    activeCardRect.sizeDelta = cardRect.sizeDelta;
-                    activeCardRect.DOSizeDelta(startSizeDelta, _scaleIn.Time).SetEase(_scaleIn.Ease);
-                    activeCardRect.DOSizeDelta(startSizeDelta, _scaleIn.Time).SetEase(_scaleIn.Ease);
+                    var startPosition = cardTransform.position;
+                    cardTransform.position = selectedCardRect.transform.position;
+                    cardTransform.DOMove(startPosition, _moveIn.Time).SetEase(_moveIn.Ease);
+
+                    var cardRect = cardTransform.GetComponent<RectTransform>();
+                    var startSizeDelta = cardRect.sizeDelta;
+                    cardRect.sizeDelta = selectedCardRect.sizeDelta;
+                    cardRect.DOSizeDelta(startSizeDelta, _scaleIn.Time).SetEase(_scaleIn.Ease);
+                    cardRect.DOSizeDelta(startSizeDelta, _scaleIn.Time).SetEase(_scaleIn.Ease);
                     continue;
                 }
 
-                _activeCards[i].GetComponent<BounceScale>().Bounce(null);
+                showCardUI.GetComponent<BounceScale>().Bounce(null);
             }
         }
 
@@ -111,10 +120,10 @@ namespace ClashOfHands.UI
         [Header("Editor Only")]
         [SerializeField]
         [Range(0, 10)]
-        private int _cardDistribution = 0;
+        private int _cardDistribution;
 
         [Button]
-        private void TestDistribution()
+        public void TestDistribution()
         {
             UpdateCardPosition(_cardDistribution);
         }

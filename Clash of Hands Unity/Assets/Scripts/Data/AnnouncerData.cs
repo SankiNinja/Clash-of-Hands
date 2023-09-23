@@ -8,6 +8,9 @@ namespace ClashOfHands.Data
     [CreateAssetMenu(menuName = "Custom/Announcer Data", fileName = "Announcer_Data_")]
     public class AnnouncerData : ScriptableObject
     {
+        [TextArea(2, 4)]
+        public string MissTurn;
+
         public List<Announcement> Interactions = new List<Announcement>(16);
 
         public string GetAnnouncementFor(CardData cardA, CardData cardB)
