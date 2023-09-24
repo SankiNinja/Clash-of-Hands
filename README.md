@@ -1,2 +1,8 @@
 # Clash-of-Hands
-Stone vs Paper vs Scissors vs Lizard vs Spock
+Rock, Paper, Scissors, Lizard, Spock The game
+# Assets
+- The game art and sound assets are form OpenGameArt.org.
+# Plugins
+The project use these free unity asset store plugins.
+- Naughy Attributes.
+- DoTween.
