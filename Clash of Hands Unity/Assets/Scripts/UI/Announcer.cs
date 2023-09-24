@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using ClashOfHands.Data;
+using ClashOfHands.Systems;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
@@ -137,6 +138,21 @@ namespace ClashOfHands.UI
             _roundResultText.gameObject.SetActive(true);
 
             _resultAnim.Bounce(_hideTexts);
+
+            PlayWinLossSFX(_result);
+        }
+
+        private void PlayWinLossSFX(int result)
+        {
+            switch (result)
+            {
+                case 1:
+                    SoundManager.Instance.PlayWinSFX();
+                    break;
+                case -1:
+                    SoundManager.Instance.PlayLoseSFX();
+                    break;
+            }
         }
 
         private void HideTexts()

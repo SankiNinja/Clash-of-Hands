@@ -4,7 +4,7 @@ using UnityEngine.Assertions;
 
 namespace ClashOfHands.Systems
 {
-    public interface ITimerTickHandler
+    public interface ITimerTickReceiver
     {
         public void OnTimerTicked(float currentTime, float targetTime);
     }
@@ -15,15 +15,15 @@ namespace ClashOfHands.Systems
 
         private float _targetTime = -1;
         private float _currentTime;
-        private ITimerTickHandler _tickHandler;
+        private ITimerTickReceiver _tickReceiver;
 
-        public void StartTimer(float sec, ITimerTickHandler tickHandler)
+        public void StartTimer(float sec, ITimerTickReceiver tickReceiver)
         {
             gameObject.SetActive(true);
             _targetTime = sec;
             _currentTime = 0;
-            _tickHandler = tickHandler;
-            Assert.IsNotNull(_tickHandler);
+            _tickReceiver = tickReceiver;
+            Assert.IsNotNull(_tickReceiver);
         }
 
         private void Update()
@@ -32,14 +32,14 @@ namespace ClashOfHands.Systems
                 return;
 
             _currentTime += Time.deltaTime;
-            _tickHandler.OnTimerTicked(_currentTime, _targetTime);
+            _tickReceiver.OnTimerTicked(_currentTime, _targetTime);
         }
 
         public void StopTimer(bool notify = false)
         {
             _currentTime = _targetTime + Time.deltaTime;
             if (notify)
-                _tickHandler.OnTimerTicked(_currentTime, _targetTime);
+                _tickReceiver.OnTimerTicked(_currentTime, _targetTime);
         }
     }
 }

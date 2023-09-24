@@ -1,4 +1,5 @@
 using System;
+using ClashOfHands.Systems;
 using DG.Tweening;
 using NaughtyAttributes;
 using UnityEngine;
@@ -6,16 +7,6 @@ using TMPro;
 
 namespace ClashOfHands.UI
 {
-    [Serializable]
-    public struct TweenTimeEase
-    {
-        public float Time;
-        public Ease Ease;
-
-        public static TweenTimeEase InExpo => new TweenTimeEase { Time = 0.2f, Ease = DG.Tweening.Ease.InExpo };
-        public static TweenTimeEase OutExpo => new TweenTimeEase { Time = 0.2f, Ease = DG.Tweening.Ease.OutExpo };
-    }
-
     public class StartCountdown : MonoBehaviour
     {
         [SerializeField]
@@ -25,13 +16,13 @@ namespace ClashOfHands.UI
         private float _maxScale;
 
         [SerializeField]
-        private TweenTimeEase _bounceIn;
+        private GameUtils.TweenTimeEase _bounceIn;
 
         [SerializeField]
         private float _idleTime;
 
         [SerializeField]
-        private TweenTimeEase _bounceOut;
+        private GameUtils.TweenTimeEase _bounceOut;
 
         private Sequence _countdownSequence;
 

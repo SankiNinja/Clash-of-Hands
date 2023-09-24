@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 namespace ClashOfHands.UI
 {
-    public class TurnTimerUI : MonoBehaviour, ITimerTickHandler, ITurnStateChangeReceiver
+    public class TurnTimerUI : MonoBehaviour, ITimerTickReceiver, ITurnStateChangeReceiver
     {
         [SerializeField]
         private Image _fill;

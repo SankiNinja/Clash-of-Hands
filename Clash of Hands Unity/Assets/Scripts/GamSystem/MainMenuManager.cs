@@ -57,6 +57,7 @@ namespace ClashOfHands.Systems
         public void Initialize(CardData[] cards)
         {
             _title.Initialize(cards);
+            _settings.Initialize();
         }
 
         public void SetHighScore(int highScore)
@@ -82,6 +83,16 @@ namespace ClashOfHands.Systems
         public void ShowSettings()
         {
             ShowState(States.Settings);
+        }
+
+        public void RegisterForSettingsChanges(ISettingChangeReceiver receiver)
+        {
+            _settings.RegisterForSettingChanges(receiver);
+        }
+
+        public void UnRegisterFromSettingChanges(ISettingChangeReceiver receiver)
+        {
+            _settings.UnRegisterFromSettingChanges(receiver);
         }
     }
 }

@@ -1,3 +1,4 @@
+using ClashOfHands.Systems;
 using DG.Tweening;
 using NaughtyAttributes;
 using UnityEngine;
@@ -10,7 +11,7 @@ namespace ClashOfHands.UI
         private Vector2 _scale;
 
         [SerializeField]
-        private TweenTimeEase _bounceIn = new TweenTimeEase
+        private GameUtils.TweenTimeEase _bounceIn = new GameUtils.TweenTimeEase
         {
             Time = 0.2f,
             Ease = Ease.InExpo
@@ -20,7 +21,7 @@ namespace ClashOfHands.UI
         private float _idleTime = 0.1f;
 
         [SerializeField]
-        private TweenTimeEase _bounceOut = new TweenTimeEase
+        private GameUtils.TweenTimeEase _bounceOut = new GameUtils.TweenTimeEase
         {
             Time = 0.2f,
             Ease = Ease.OutExpo

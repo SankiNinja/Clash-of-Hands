@@ -1,3 +1,4 @@
+using ClashOfHands.Systems;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
@@ -39,7 +40,7 @@ namespace ClashOfHands.UI
         private float _offKnobPos;
 
         [SerializeField]
-        private TweenTimeEase _moveTime = TweenTimeEase.InExpo;
+        private GameUtils.TweenTimeEase _moveTime = GameUtils.TweenTimeEase.InExpo;
 
         public void SetState(bool isOn)
         {

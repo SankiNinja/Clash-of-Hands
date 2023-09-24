@@ -1,41 +1,92 @@
+using System.Collections.Generic;
+using ClashOfHands.Systems;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace ClashOfHands.UI
 {
-    public class SettingsMenu : MonoBehaviour
+    public struct SettingsValues
     {
+        public int Music;
+        public int SFX;
+    }
+
+    public interface ISettingChangeReceiver
+    {
+        void OnSettingsChanged(SettingsValues values);
+    }
+
+    public interface ISettingsChangeProvider
+    {
+        void RegisterForSettingChanges(ISettingChangeReceiver receiver);
+        void UnRegisterFromSettingChanges(ISettingChangeReceiver receiver);
+    }
+
+    public class SettingsMenu : MonoBehaviour, ISettingsChangeProvider
+    {
+        [FormerlySerializedAs("_musicToggle")]
         [SerializeField]
-        private ToggleVisual _musicToggle;
+        private SettingsSlider _musicSlider;
 
+        [FormerlySerializedAs("_sfxToggle")]
         [SerializeField]
-        private ToggleVisual _sfxToggle;
+        private SettingsSlider _sfxSlider;
 
-        private bool _music;
-        private bool _sfx;
+        private readonly List<ISettingChangeReceiver> _changeReceivers = new(4);
 
-        public void OnMusicToggle(bool isOn)
+        private SettingsValues _values;
+
+        public void Initialize()
         {
-            _music = isOn;
+            LoadData();
         }
 
-        public void OnSFXToggle(bool isOn)
+        public void OnMusicValueChanged(float value)
         {
-            _sfx = isOn;
+            _values.Music = (int)value;
+            BroadcastSettingsChanges();
+            SaveData();
         }
 
-        public void SaveData()
+        public void OnSFXValueChanged(float value)
         {
-            PlayerPrefs.SetInt("Music", _music ? 1 : 0);
-            PlayerPrefs.SetInt("SFX", _sfx ? 1 : 0);
+            _values.SFX = (int)value;
+            BroadcastSettingsChanges();
+            SaveData();
         }
 
-        public void LoadData()
+        private void SaveData()
         {
-            _music = PlayerPrefs.GetInt("Music", 1) == 1;
-            _sfx = PlayerPrefs.GetInt("SFX", 1) == 1;
+            PlayerPrefs.SetInt("Music", _values.Music);
+            PlayerPrefs.SetInt("SFX", _values.SFX);
+        }
 
-            _musicToggle.Toggle.isOn = _music;
-            _sfxToggle.Toggle.isOn = _sfx;
+        private void LoadData()
+        {
+            _values.Music = PlayerPrefs.GetInt("Music", 4);
+            _values.SFX = PlayerPrefs.GetInt("SFX", 10);
+
+            BroadcastSettingsChanges();
+
+            _musicSlider.SetValue(_values.Music);
+            _sfxSlider.SetValue(_values.SFX);
+        }
+
+        private void BroadcastSettingsChanges()
+        {
+            foreach (var receiver in _changeReceivers)
+                receiver.OnSettingsChanged(_values);
+        }
+
+        public void RegisterForSettingChanges(ISettingChangeReceiver receiver)
+        {
+            receiver.OnSettingsChanged(_values);
+            _changeReceivers.Add(receiver);
+        }
+
+        public void UnRegisterFromSettingChanges(ISettingChangeReceiver receiver)
+        {
+            _changeReceivers.UnRegisterReceiver(receiver);
         }
     }
 }

@@ -22,8 +22,8 @@ namespace ClashOfHands.Systems
     {
         public void RegisterForTurnStateUpdates(ITurnStateChangeReceiver receiver);
         public void UnRegisterForTurnUpdates(ITurnStateChangeReceiver receiver);
-        public void RegisterForTurnTickUpdates(ITimerTickHandler receiver);
-        public void UnRegisterForTurnUpdates(ITimerTickHandler receiver);
+        public void RegisterForTurnTickUpdates(ITimerTickReceiver receiver);
+        public void UnRegisterForTurnUpdates(ITimerTickReceiver receiver);
     }
 
     public interface ICardInputReceiver
@@ -37,7 +37,7 @@ namespace ClashOfHands.Systems
     }
 
     public class GameManager : MonoBehaviourSingleton<GameManager>, ICardInputReceiver, ITurnUpdateProvider,
-        ITimerTickHandler, IPollInputTrigger
+        ITimerTickReceiver, IPollInputTrigger
     {
         [SerializeField]
         private GameData _gameData;
@@ -61,7 +61,6 @@ namespace ClashOfHands.Systems
         [Range(1, 3)]
         private int _hearts;
 
-        private ICardInputProvider[] _cardInputs;
         private CardData[] _inputCards;
         private int[] _totalScores;
         private int[] _roundResults;
@@ -73,8 +72,9 @@ namespace ClashOfHands.Systems
 
         private Sprite[] AvatarSprites => _avatarDatabase.Avatars;
 
+        private ICardInputProvider[] _cardInputs;
         private readonly List<ITurnStateChangeReceiver> _turnStateChangeReceivers = new(8);
-        private readonly List<ITimerTickHandler> _turnTickHandlers = new(4);
+        private readonly List<ITimerTickReceiver> _turnTickReceivers = new(4);
 
         private void Start()
         {
@@ -100,6 +100,7 @@ namespace ClashOfHands.Systems
         {
             MainMenuManager.Instance.ShowState(MainMenuManager.States.MainMenu);
             MainMenuManager.Instance.SetHighScore(_player.HighScore);
+            SoundManager.Instance.SetMenuMusic();
             GameHUD.Instance.Hide();
         }
 
@@ -119,6 +120,12 @@ namespace ClashOfHands.Systems
 
             for (int i = 0; i < _avatarSprites.Length; i++)
                 _avatarSprites[i] = null;
+
+            for (int i = 0; i < _cardInputs.Length; i++)
+                _cardInputs[i] = null;
+
+            _turnTickReceivers.Clear();
+            _turnStateChangeReceivers.Clear();
         }
 
         public void InitGame()
@@ -128,6 +135,8 @@ namespace ClashOfHands.Systems
             RegisterInputSources();
             InitializeGameUI();
             ShowCountdown();
+
+            SoundManager.Instance.SetGameMusic();
         }
 
         private void RegisterInputSources()
@@ -244,47 +253,25 @@ namespace ClashOfHands.Systems
 
         public void UnRegisterForTurnUpdates(ITurnStateChangeReceiver receiver)
         {
-            var count = _turnStateChangeReceivers.Count;
-            for (int i = 0; i < count; i++)
-            {
-                if (ReferenceEquals(_turnStateChangeReceivers[i], receiver))
-                {
-                    var lastHandler = _turnStateChangeReceivers[count - 1];
-                    _turnStateChangeReceivers[i] = lastHandler;
-                    _turnStateChangeReceivers.RemoveAt(count - 1);
-                    count--;
-                    i--;
-                }
-            }
+            _turnStateChangeReceivers.UnRegisterReceiver(receiver);
         }
 
         private void BroadcastTurnTicks(float currentTime, float targetTime)
         {
-            foreach (var timerTickHandler in _turnTickHandlers)
+            foreach (var timerTickHandler in _turnTickReceivers)
             {
                 timerTickHandler.OnTimerTicked(currentTime, targetTime);
             }
         }
 
-        public void RegisterForTurnTickUpdates(ITimerTickHandler receiver)
+        public void RegisterForTurnTickUpdates(ITimerTickReceiver receiver)
         {
-            _turnTickHandlers.Add(receiver);
+            _turnTickReceivers.Add(receiver);
         }
 
-        public void UnRegisterForTurnUpdates(ITimerTickHandler receiver)
+        public void UnRegisterForTurnUpdates(ITimerTickReceiver receiver)
         {
-            var count = _turnTickHandlers.Count;
-            for (int i = 0; i < count; i++)
-            {
-                if (ReferenceEquals(_turnTickHandlers[i], receiver))
-                {
-                    var lastHandler = _turnTickHandlers[count - 1];
-                    _turnTickHandlers[i] = lastHandler;
-                    _turnTickHandlers.RemoveAt(count - 1);
-                    count--;
-                    i--;
-                }
-            }
+            _turnTickReceivers.UnRegisterReceiver(receiver);
         }
 
         private void PollCardInput(CardData[] cards)

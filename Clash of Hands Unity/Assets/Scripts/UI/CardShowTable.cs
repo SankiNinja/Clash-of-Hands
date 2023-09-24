@@ -19,13 +19,13 @@ namespace ClashOfHands.UI
         private readonly List<CardShowUI> _activeCards = new(4);
 
         [SerializeField]
-        private TweenTimeEase _moveIn;
+        private GameUtils.TweenTimeEase _moveIn;
 
         [SerializeField]
-        private TweenTimeEase _scaleIn;
+        private GameUtils.TweenTimeEase _scaleIn;
 
         [SerializeField]
-        private TweenTimeEase _scaleOut = TweenTimeEase.OutExpo;
+        private GameUtils.TweenTimeEase _scaleOut = GameUtils.TweenTimeEase.OutExpo;
 
         public void Initialize(int playerCount, ITurnUpdateProvider turnUpdate)
         {

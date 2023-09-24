@@ -20,10 +20,10 @@ namespace ClashOfHands.UI
         private TurnTimerUI _timerUI;
 
         [SerializeField]
-        private TweenTimeEase _scaleIn = TweenTimeEase.InExpo;
+        private GameUtils.TweenTimeEase _scaleIn = GameUtils.TweenTimeEase.InExpo;
 
         [SerializeField]
-        private TweenTimeEase _scaleOut = TweenTimeEase.OutExpo;
+        private GameUtils.TweenTimeEase _scaleOut = GameUtils.TweenTimeEase.OutExpo;
 
         private readonly List<CardUI> _cardUIs = new(8);
 
@@ -78,6 +78,8 @@ namespace ClashOfHands.UI
             _selectedCard = cardData;
             _selectedCardRect = uiView.GetComponent<RectTransform>();
             _pollInputTrigger?.CollectInput();
+
+            SoundManager.Instance.PlayButtonSFX();
         }
 
         public int PlayerIndex { get; set; }
